@@ -107,4 +107,54 @@ public class ApprenantDAO {
         }
         return false;
     }
+
+    public Apprenant getApprenantPlusAbsent() throws SQLException {
+        String sql = "SELECT * FROM apprenant ORDER BY nombre_absences DESC LIMIT 1";
+        try (Statement stmt = connection.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return new Apprenant(
+                        rs.getInt("id"),
+                        rs.getString("promotion"),
+                        rs.getString("nom"),
+                        rs.getString("prenom"),
+                        rs.getString("email"),
+                        rs.getString("telephone"),
+                        rs.getInt("nombre_absences"),
+                        rs.getBoolean("delegue"));
+            }
+        }
+        return null; // Aucun apprenant trouvé
+    }
+
+    public int getTotalAbsences() throws SQLException {
+        String sql = "SELECT SUM(nombre_absences) AS total FROM apprenant";
+        try (Statement stmt = connection.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt("total"); // Retourne le total des absences
+            }
+        }
+        return 0; // Retourne 0 si aucun résultat
+    }
+
+    public Apprenant getApprenantByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM apprenant WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Apprenant(
+                        rs.getInt("id"),
+                        rs.getString("promotion"),
+                        rs.getString("nom"),
+                        rs.getString("prenom"),
+                        rs.getString("email"),
+                        rs.getString("telephone"),
+                        rs.getInt("nombre_absences"),
+                        rs.getBoolean("delegue"));
+            }
+        }
+        return null; // Retourne null si aucun apprenant trouvé
+    }
 }
